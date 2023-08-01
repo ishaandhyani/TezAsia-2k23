@@ -1,10 +1,18 @@
 import express, { Request, Response } from 'express';
 import { PrismaClient, Prisma } from '@prisma/client';
 
+const cors = require('cors');
+const corsOptions = {
+  origin: 'http://localhost:3000',
+  // Add any other CORS-related configurations here if needed
+};
+
+
 const prisma = new PrismaClient();
 const app = express();
-const port = 5000;
+const port = 5001;
 
+app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
