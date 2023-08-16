@@ -8,7 +8,12 @@ interface User {
 }
 
 export const setupSocketIO = (server: HttpServer) => {
-  const io = new ServerSocket(server);
+  const io = new ServerSocket(server, {
+    cors: {
+      origin: "http://localhost:3000",
+      methods: ["GET", "POST"],
+    },
+  });
   const users: User[] = [];
 
   const rooms: Record<string, string[]> = {};

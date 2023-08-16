@@ -1,43 +1,18 @@
+import { InMemorySigner } from "@taquito/signer";
 import { TezosToolkit } from "@taquito/taquito";
-import { BeaconWallet } from "@taquito/beacon-wallet";
-import { NetworkType } from "@airgap/beacon-sdk";
 
 const Tezos = new TezosToolkit("https://ghostnet.smartpy.io");
 
-const options = {
-  name: "MyAwesomeDapp",
-  iconUrl: "https://tezostaquito.io/img/favicon.svg",
-  preferredNetwork: NetworkType.GHOSTNET,
-};
+Tezos.setProvider({
+  signer: await InMemorySigner.fromSecretKey(
+    "edskRnT7i4kHKbJtznWi5KFjJ1y9HQoburPBVmBAebdxby5GUiTpm1KpwCkR7si4v7ofNUsNVfQ7nEuyruu2GaQh8MuJVgkWDF"
+  ),
+});
 
-const wallet = new BeaconWallet(options);
-
-Tezos.setWalletProvider(wallet);
-
-export async function connectWallet() {
-  await wallet.requestPermissions({ network: { type: NetworkType.GHOSTNET } });
-}
-
-export const getAccount = async () => {
-  const connectedWallet = await wallet.client.getActiveAccount();
-  if (connectedWallet) {
-    return connectedWallet.address;
-  } else {
-    return "";
-  }
-};
-
-export const disconnect = async () => {
-  wallet.clearActiveAccount();
-};
-
-export async function addplayer1(uid) {
-  const amountToSend = 5;
+export async function initiateGame(uid) {
   Tezos.wallet
     .at("KT1Ww7TuAfLRTMFL3dnFHeDpwPC7VxhYoKTJ")
-    .then((contract) =>
-      contract.methods.add_player1(uid).send({ amount: amountToSend })
-    )
+    .then((contract) => contract.methods.initiate_game(uid).send())
     .then((op) => {
       console.log(`Hash: ${op.opHash}`);
       return op.confirmation();
@@ -55,13 +30,31 @@ export async function addplayer1(uid) {
     .catch((err) => console.log(err));
 }
 
-export async function addplayer2(uid) {
-  const amountToSend = 5;
+export async function wingame(uid, winner) {
   Tezos.wallet
     .at("KT1Ww7TuAfLRTMFL3dnFHeDpwPC7VxhYoKTJ")
-    .then((contract) =>
-      contract.methods.add_player2(uid).send({ amount: amountToSend })
-    )
+    .then((contract) => contract.methods.wingame(uid, winner).send())
+    .then((op) => {
+      console.log(`Hash: ${op.opHash}`);
+      return op.confirmation();
+    })
+    .then((result) => {
+      console.log(result);
+      if (result.completed) {
+        console.log(`Transaction correctly processed!
+      Block: ${result.block.header.level}
+      Chain ID: ${result.block.chain_id}`);
+      } else {
+        println("An error has occurred");
+      }
+    })
+    .catch((err) => console.log(err));
+}
+
+export async function drawgame(uid) {
+  Tezos.wallet
+    .at("KT1Ww7TuAfLRTMFL3dnFHeDpwPC7VxhYoKTJ")
+    .then((contract) => contract.methods.drawgame(uid).send())
     .then((op) => {
       console.log(`Hash: ${op.opHash}`);
       return op.confirmation();
