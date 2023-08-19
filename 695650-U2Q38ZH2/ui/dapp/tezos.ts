@@ -34,7 +34,7 @@ export const disconnect = async () => {
 export async function addplayer1(uid) {
   const amountToSend = 5;
   Tezos.wallet
-    .at("KT1Ww7TuAfLRTMFL3dnFHeDpwPC7VxhYoKTJ")
+    .at("KT1NCsViFm14q3JQFSGXDEEvC5vWNSZACjPX")
     .then((contract) =>
       contract.methods.add_player1(uid).send({ amount: amountToSend })
     )
@@ -58,7 +58,7 @@ export async function addplayer1(uid) {
 export async function addplayer2(uid) {
   const amountToSend = 5;
   Tezos.wallet
-    .at("KT1Ww7TuAfLRTMFL3dnFHeDpwPC7VxhYoKTJ")
+    .at("KT1NCsViFm14q3JQFSGXDEEvC5vWNSZACjPX")
     .then((contract) =>
       contract.methods.add_player2(uid).send({ amount: amountToSend })
     )

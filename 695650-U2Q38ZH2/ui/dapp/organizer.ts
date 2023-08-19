@@ -9,30 +9,9 @@ Tezos.setProvider({
   ),
 });
 
-export async function initiateGame(uid) {
-  Tezos.wallet
-    .at("KT1Ww7TuAfLRTMFL3dnFHeDpwPC7VxhYoKTJ")
-    .then((contract) => contract.methods.initiate_game(uid).send())
-    .then((op) => {
-      console.log(`Hash: ${op.opHash}`);
-      return op.confirmation();
-    })
-    .then((result) => {
-      console.log(result);
-      if (result.completed) {
-        console.log(`Transaction correctly processed!
-      Block: ${result.block.header.level}
-      Chain ID: ${result.block.chain_id}`);
-      } else {
-        println("An error has occurred");
-      }
-    })
-    .catch((err) => console.log(err));
-}
-
 export async function wingame(uid, winner) {
   Tezos.wallet
-    .at("KT1Ww7TuAfLRTMFL3dnFHeDpwPC7VxhYoKTJ")
+    .at("KT1NCsViFm14q3JQFSGXDEEvC5vWNSZACjPX")
     .then((contract) => contract.methods.wingame(uid, winner).send())
     .then((op) => {
       console.log(`Hash: ${op.opHash}`);
@@ -53,7 +32,7 @@ export async function wingame(uid, winner) {
 
 export async function drawgame(uid) {
   Tezos.wallet
-    .at("KT1Ww7TuAfLRTMFL3dnFHeDpwPC7VxhYoKTJ")
+    .at("KT1NCsViFm14q3JQFSGXDEEvC5vWNSZACjPX")
     .then((contract) => contract.methods.drawgame(uid).send())
     .then((op) => {
       console.log(`Hash: ${op.opHash}`);
