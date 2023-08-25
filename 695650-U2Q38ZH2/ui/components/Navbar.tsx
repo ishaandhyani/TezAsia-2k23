@@ -8,6 +8,7 @@ import { faUser } from "@fortawesome/free-solid-svg-icons";
 import WelcomePopup from "./WelcomePopup";
 import { useAccount } from "@/contexts/AccountContext";
 
+
 export function Navbar() {
   const { account, setAccount } = useAccount();
   const [avatarName, setAvatarName] = useState<string | null>(null);
