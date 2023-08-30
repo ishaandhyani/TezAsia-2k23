@@ -2,7 +2,8 @@ import { Server as ServerSocket, Socket } from "socket.io";
 import { Server as HttpServer } from "http";
 import { generateId } from "../chess/helpers";
 import Game from "../chess/Game";
-import initializeTezos from "./organizer";
+// import initializeTezos from "./organizer";
+import {wingame, drawgame} from "./organizer";
 let games: Game[] = [];
 let waitlistGameId: string | null = null;
 interface User {
@@ -77,7 +78,7 @@ export const setupSocketIO = (server: HttpServer) => {
       if (gameIndex === -1) return;
       let game = games[gameIndex];
       let pIndex = game.players.findIndex((p) => p.id === playerId);
-       const { wingame } = await initializeTezos();
+      //  const { wingame } = await initializeTezos();
     
           if(pIndex==1){
             pIndex=0;
@@ -130,7 +131,7 @@ export const setupSocketIO = (server: HttpServer) => {
     });
 
     socket.on("gameover", async (data) => {
-      const { wingame,drawgame } = await initializeTezos();
+      // const { wingame,drawgame } = await initializeTezos();
       const gameIndex = games.findIndex((g) => g.id === currentGameId);
       if (gameIndex === -1) return;
       const game = games[gameIndex];

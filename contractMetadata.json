@@ -1,0 +1,17 @@
+{
+    "name": "BLOCKS",
+    "version": "1.0.0",
+    "description": "This implements FA2 (TZIP-012) using SmartPy.",
+    "interfaces": ["TZIP-012", "TZIP-016"],
+    "authors": ["1.Harsh Tuli 2.Ishaan Dhyani 3.Paras Raut 4.Yadnyesh Mahadeshwar"],
+    "homepage": "https:OurWebsiteHomePage",
+    "source": {
+      "tools": ["SmartPy"],
+      "location": "https://gitlab.com/SmartPy/smartpy/-/raw/master/python/templates/fa2_lib.py"
+    },
+    "permissions": {
+      "receiver": "owner-no-hook",
+      "sender": "owner-no-hook",
+      "operator": "owner-or-operator-transfer"
+    }
+}
