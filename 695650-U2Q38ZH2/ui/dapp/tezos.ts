@@ -38,15 +38,15 @@ let contract;
 
 async function getContract() {
   if (!contract) {
-    contract = await Tezos.wallet.at("KT1JTQ3Af8CjkzA3V45hWHt5eZiwBCKJwpxN");
+    contract = await Tezos.wallet.at("KT193qPygfhfD7TYhNkWirqD1rRpx2YEmESg");
   }
   return contract;
 }
 
 
-export async function addplayer1(uid) {
+export async function addplayer1(uid,amountToSend) {
   const contractInstance = await getContract();
-  const amountToSend = 5;
+  // const amountToSend = 5;
   try {
     const op = await contract.methods
       .add_player1(uid)
@@ -71,9 +71,9 @@ export async function addplayer1(uid) {
   }
 }
 
-export async function addplayer2(uid) {
+export async function addplayer2(uid,amountToSend) {
   const contractInstance = await getContract();
-  const amountToSend = 5;
+  // const amountToSend = 5;
   try {
     const op = await contract.methods
       .add_player2(uid)

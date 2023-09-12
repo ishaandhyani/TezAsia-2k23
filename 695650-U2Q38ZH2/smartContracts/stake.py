@@ -1,4 +1,4 @@
-# Deployed on ghostnet at address = "KT1JTQ3Af8CjkzA3V45hWHt5eZiwBCKJwpxN"
+# Deployed on Ghostnet at address:KT193qPygfhfD7TYhNkWirqD1rRpx2YEmESg
 
 import smartpy as sp
 
@@ -16,14 +16,14 @@ def main():
         def add_player1(self, uid):
             sp.cast(uid, sp.string)
             assert not self.data.games.contains(uid), "Game ID allready exist"
-            assert sp.amount == sp.tez(5) , "Staked tokens should be 5 TEZ"
+            assert ((sp.amount == sp.tez(1))or(sp.amount == sp.tez(5))or(sp.amount == sp.tez(10))or(sp.amount == sp.tez(20))) , "Staked tokens should be 1,5,10,20 TEZ"
             
             # Initializing game 
             self.data.games[uid] = sp.record(
                 player1 = sp.sender,
                 player2 = sp.address("tz1burnburnburnburnburnburnburjAYjjX"),
                 stake_balance  = sp.amount,
-                stake_amount = sp.tez(5),
+                stake_amount = sp.amount,
                 game_result  = ""
             )
 
@@ -35,7 +35,8 @@ def main():
             assert self.data.games.contains(uid), "Game ID does not exist"
             game = self.data.games[uid]
             assert game.player2 == sp.address("tz1burnburnburnburnburnburnburjAYjjX"),"Player 2 already added"
-            assert sp.amount == sp.tez(5) , "Staked tokens should be 5 TEZ"
+            assert sp.amount == game.stake_amount, "Staked tokens does not match the game stake"
+            
 
             self.data.games[uid] = sp.record(
                 player1 = game.player1, 
@@ -60,8 +61,9 @@ def main():
                 win = game.player2
             
             # Funds Distribution
-            sp.send(sp.sender, sp.tez(1))
-            sp.send(win ,game.stake_balance - sp.tez(1))
+            organizer_fee = sp.split_tokens(game.stake_amount, 5, 100)
+            sp.send(sp.sender, organizer_fee)
+            sp.send(win ,game.stake_balance - organizer_fee)
 
             if(self.data.winners.contains(win)):
                 self.data.winners[win] = self.data.winners[win] + 1
@@ -86,9 +88,10 @@ def main():
             assert sp.sender == self.data.organizer, "Only Organizer Can Endgame" 
             game = self.data.games[uid]
 
-            #Funds Distribution
-            sp.send(self.data.organizer, sp.tez(1))
-            game.stake_balance -= sp.tez(1)
+            # Funds Distribution
+            organizer_fee = sp.split_tokens(game.stake_amount, 5, 100)
+            sp.send(sp.sender, organizer_fee)
+            game.stake_balance -= organizer_fee
             balance = sp.split_tokens(game.stake_balance, 50, 100)
             sp.send(game.player1 ,balance)
             sp.send(game.player2 ,balance)
@@ -133,23 +136,23 @@ def test():
     
     # Initiate Games
     scenario.h2("Simple Game 1 Initiation")
-    c1.add_player1(guid1).run(sender=p1, amount=sp.tez(5))
+    c1.add_player1(guid1).run(sender=p1, amount=sp.tez(1))
     scenario.h2("Simple Game 2 Initiation")
     c1.add_player1(guid2).run(sender=p3, amount=sp.tez(5))
     scenario.h2("Simple Game 3 Initiation")
-    c1.add_player1(guid3).run(sender=p1, amount=sp.tez(5))
+    c1.add_player1(guid3).run(sender=p1, amount=sp.tez(10))
     scenario.h2("Simple Game 4 Initiation")
-    c1.add_player1(guid4).run(sender=p3, amount=sp.tez(5))
+    c1.add_player1(guid4).run(sender=p3, amount=sp.tez(20))
 
     #Adding players to games   
     scenario.h2("Adding Player 2 to Game 1")
-    c1.add_player2(guid1).run(sender=p2, amount=sp.tez(5))
+    c1.add_player2(guid1).run(sender=p2, amount=sp.tez(1))
     scenario.h2("Adding Player 4 to Game 2")
     c1.add_player2(guid2).run(sender=p4, amount=sp.tez(5))
     scenario.h2("Adding Player 4 to Game 3")
-    c1.add_player2(guid3).run(sender=p4, amount=sp.tez(5))
+    c1.add_player2(guid3).run(sender=p4, amount=sp.tez(10))
     scenario.h2("Adding Player 2 to Game 4")
-    c1.add_player2(guid4).run(sender=p2, amount=sp.tez(5))
+    c1.add_player2(guid4).run(sender=p2, amount=sp.tez(20))
 
     #End Games
     scenario.h2("Game 1 Win")
