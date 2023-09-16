@@ -11,16 +11,19 @@ import SmokeBackground from "./Particles";
 import { useGame } from "@/contexts/GamesContext";
 import { useAccount } from "@/contexts/AccountContext";
 import { Button, Card, TextInput } from "flowbite-react";
+import Modal from "./GameModeModal";
 
 export default function Menu() {
   const router = useRouter();
-  const [myGames, setMyGames] = useState<any[]>([]); // Specify the type for myGames
+  const [myGames, setMyGames] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [isPrivate, setIsPrivate] = useState<boolean | undefined>(); // Specify the type for isPrivate
-  const [onlineUsers, setOnlineUsers] = useState<string[]>([]); // Specify the type for onlineUsers
+  const [isPrivate, setIsPrivate] = useState<boolean | undefined>();
+  const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const [joiningGame, setJoiningGame] = useState(false);
   const [gameId, setGameId] = useState("");
   const { account } = useAccount();
+  const [selectedMode, setSelectedMode] = useState(0);
+  const [showModeSelection, setShowModeSelection] = useState(false);
 
   const { makest, makerg, makejg } = useGame() || {};
 
@@ -38,12 +41,35 @@ export default function Menu() {
     setLoading(true);
     console.log("Joining game with ID:", gameId);
 
-    await addplayer2(gameId).then((ans) => {
-      if (ans) {
-        router.push("/chess/" + gameId);
+    try {
+      // Fetch the stake amount from the endpoint
+      const response = await fetch(
+        `https://api.ghostnet.tzkt.io/v1/contracts/KT193qPygfhfD7TYhNkWirqD1rRpx2YEmESg/bigmaps/games/keys/${gameId}`
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+
+        // Extract the stake amount and convert it to Tez
+        const stakeAmount = parseInt(data.value.stake_amount) / 1000000;
+
+        // Call addplayer2 with gameId and stakeAmount
+        await addplayer2(gameId, stakeAmount).then((ans) => {
+          if (ans) {
+            router.push("/chess/" + gameId);
+            setLoading(false);
+          }
+        });
+      } else {
+        // Handle HTTP error here
+        console.error("HTTP Error:", response.status, response.statusText);
         setLoading(false);
       }
-    });
+    } catch (error) {
+      console.error("Error fetching game data:", error);
+      // Handle other errors here
+      setLoading(false);
+    }
   };
 
   const socket = useSocket();
@@ -58,8 +84,10 @@ export default function Menu() {
 
   useEffect(() => {
     if (!socket) return;
+    console.log(`DEBUG:inside useEffect`);
     async function gotogame(gameId: string) {
-      await addplayer1(gameId).then((ans) => {
+      console.log(`DEBUG: Selected Mode is ${selectedMode}`);
+      await addplayer1(gameId, selectedMode).then((ans) => {
         if (ans) {
           router.push("/chess/" + gameId);
         }
@@ -67,7 +95,7 @@ export default function Menu() {
     }
 
     async function gotoram(gameId: string) {
-      await addplayer2(gameId).then((ans) => {
+      await addplayer2(gameId, selectedMode).then((ans) => {
         if (ans) {
           router.push("/chess/" + gameId);
         }
@@ -85,17 +113,30 @@ export default function Menu() {
       socket.off("game id", gotogame);
       socket.off("get-users");
     };
-  }, [socket]);
+  }, [socket, selectedMode]);
 
   const handlePrivateGameClick = () => {
-    makest();
-    setLoading(true);
-    socket?.emit("create");
+    // Move setLoading to after the mode selection
+    console.log(`DEBUG: private game clicked`);
+    setShowModeSelection(true);
   };
   const gotolib = () => {
     router.push("/Library");
   };
 
+  const handleModeSelect = (mode) => {
+    console.log("Selected Mode:", mode);
+    setSelectedMode(mode);
+    makest();
+    setLoading(true); // Set loading here, after the mode is selected
+    socket?.emit("create", { selectedMode: mode });
+    setShowModeSelection(false);
+  };
+
+  const handleCloseModal = () => {
+    // Close the modal
+    setShowModeSelection(false);
+  };
   function BackgroundImage() {
     return (
       <div className="fixed top-0 left-0 w-full h-full z-[-1]">
@@ -198,6 +239,10 @@ export default function Menu() {
           </div>
         </div>
       </div>
+
+      {showModeSelection && (
+        <Modal isOpen={showModeSelection} onClose={handleCloseModal} onModeSelect={handleModeSelect} />
+      )}
     </>
   );
 }
